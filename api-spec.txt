@@ -1,0 +1,6 @@
+/user - GET all, DELETE all
+/user/:uid - GET all user's info, PUT (change individual fields except favs), POST (create new user), DELETE 
+/user/:uid/favorites - GET all of the user's favorites, POST (add a new favorite charity - dup or not), DELETE all
+/user/:uid/favorites/:ein - DELETE from the list 
+
+(de-dup server-side with _.uniq() underscore command) 
