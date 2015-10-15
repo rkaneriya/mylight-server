@@ -61,3 +61,9 @@
     "re": false,
     "un": true
 }
+
+
+{ 
+    "username": "rkaneriya",
+    "password_hash": "test"
+}

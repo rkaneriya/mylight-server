@@ -33,12 +33,11 @@ router.post('/user', function(req, res) {
 // requires all the attributes to be there (need to perform validation on this)
 router.put('/user/:uid', function(req, res) {
     var uid = parseInt(req.params.uid);
-    var obj = req.body;
+    var obj = req.body.personal_info;
     obj.uid = uid; 
     var record = [uid, obj.first_name, obj.last_name, obj.username, obj.email, obj.password_hash, obj.ar, obj.bh, obj.ed, obj.eh, obj.en, obj.he, obj.hu, obj.intl, obj.mu, obj.pu, obj.re, obj.un]; 
-
     var sql = 'UPDATE users SET first_name = $2, last_name = $3, username = $4, email = $5, password_hash = $6, ar = $7, bh = $8, ed = $9, eh = $10, en = $11, he = $12, hu = $13, intl = $14, mu = $15, pu = $16, re = $17, un = $18 WHERE uid = $1';
-    var q = db.query(sql, record, function(error, result){
+    var q = db.query(sql, record, function(error, result) {
         res.json(obj);
     });
 });

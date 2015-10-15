@@ -26,14 +26,53 @@ router.post('/auth', function(req, res) {
                     db.query(sql, [r.uid], function(error, result) {
                         blob.friends = (result.rows[0]) ? result.rows[0] : [];
 
-                        var sql = 'SELECT * FROM recommendations WHERE uid = $1';
+                        var sql = 'select uid, recommendations.ein, type, name, ntmaj10, state from recommendations inner join charities on recommendations.ein = cast(charities.ein as integer) where uid = $1';
                         db.query(sql, [r.uid], function(error, result) {
-                            blob.recommendations = (result.rows[0]) ? result.rows[0] : [];  
+                            blob.recommendations = (result.rows[0]) ? result.rows : [];  
                             
                             res.json(blob); 
                         }); 
                     }); 
                 }); 
+            }); 
+        } else { 
+            res.json({ status: false });
+        }
+    });
+}); 
+
+router.get('/load', function(req, res) { 
+    var session_id = req.query.session_id; 
+    var sql = 'SELECT * FROM auth WHERE session_id = $1';
+    db.query(sql, [session_id], function(error, result) {
+        var r = result.rows[0]; 
+        if (r) { 
+            var sql = 'SELECT * FROM users WHERE username = $1'; 
+            db.query(sql, [r.username], function(error, result) { 
+                var r2 = result.rows[0]; 
+                if (r2) { 
+                    var blob = { status: true }; 
+                    blob.personal_info = r2; 
+
+                    var sql = 'SELECT * FROM notifications WHERE uid = $1';
+                    db.query(sql, [r2.uid], function(error, result) {
+                        blob.notifications = (result.rows[0]) ? result.rows[0] : []; 
+
+                        var sql = 'SELECT * FROM friends WHERE uid_1 = $1';
+                        db.query(sql, [r.uid], function(error, result) {
+                            blob.friends = (result.rows[0]) ? result.rows[0] : [];
+
+                            var sql = 'select uid, recommendations.ein, type, name, ntmaj10, state from recommendations inner join charities on recommendations.ein = cast(charities.ein as integer) where uid = $1';
+                            db.query(sql, [r2.uid], function(error, result) {
+                                blob.recommendations = (result.rows[0]) ? result.rows : [];  
+                                
+                                res.json(blob); 
+                            }); 
+                        }); 
+                    }); 
+                } else { 
+                    res.json({ status: false });
+                }
             }); 
         } else { 
             res.json({ status: false });
