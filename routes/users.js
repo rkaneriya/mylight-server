@@ -4,6 +4,7 @@ var request = require('request');
 var _ = require('underscore'); 
 var anyDB = require('any-db');
 var db = anyDB.createConnection('postgres://localhost:5432/mylight');
+var jwt = require('jsonwebtoken'); 
 
 router.get('/user', function(req, res) {
     var sql = 'SELECT * FROM users';
@@ -25,8 +26,19 @@ router.post('/user', function(req, res) {
     var uid = Math.abs((new Date()).valueOf() & 0xffffffff);
     var record = [uid, obj.first_name, obj.last_name, obj.username, obj.email, obj.password_hash, obj.ar, obj.bh, obj.ed, obj.eh, obj.en, obj.he, obj.hu, obj.intl, obj.mu, obj.pu, obj.re, obj.un]; 
     var sql = 'INSERT INTO users (uid, first_name, last_name, username, email, password_hash, ar, bh, ed, eh, en, he, hu, intl, mu, pu, re, un) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)';
-    db.query(sql, record, function(error, result) {
-        res.json({ uid: uid });
+    db.query(sql, record, function(err, result) {
+        var body = { status: true, uid: uid, username: true, email: true }; 
+
+        if (err) { 
+            body.username = !err.constraint.includes('username'); 
+            body.email = !err.constraint.includes('email'); 
+            body.status = false; 
+        } else { 
+            var token = jwt.sign({ uid: uid }, 'secretkey'); 
+            body.jwt = token; 
+        }
+
+        res.json(body);
     });
 }); 
 

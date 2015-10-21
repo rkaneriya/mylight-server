@@ -2,14 +2,13 @@
 -- DROP TABLE notifications; 
 -- DROP TABLE recommendations; 
 -- DROP TABLE friends; 
--- DROP TABLE auth; 
 
 -- CREATE TABLE users (
 -- 	uid INTEGER PRIMARY KEY,
 -- 	first_name TEXT,
 -- 	last_name TEXT,
--- 	username TEXT,
--- 	email TEXT,
+-- 	username TEXT UNIQUE,
+-- 	email TEXT UNIQUE,
 -- 	password_hash TEXT,
 -- 	ar BOOLEAN,
 -- 	bh BOOLEAN,
@@ -25,11 +24,6 @@
 -- 	un BOOLEAN,
 -- 	favorites INTEGER[]
 -- );
-
--- CREATE TABLE auth (
--- 	username TEXT PRIMARY KEY,
--- 	session_id INTEGER
--- ); 
 
 -- CREATE TABLE notifications (
 -- 	uid INTEGER, 
