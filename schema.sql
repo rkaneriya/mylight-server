@@ -2,6 +2,7 @@
 -- DROP TABLE notifications; 
 -- DROP TABLE recommendations; 
 -- DROP TABLE friends; 
+-- DROP TABLE charities; 
 
 -- CREATE TABLE users (
 -- 	uid INTEGER PRIMARY KEY,
