@@ -27,6 +27,7 @@ router.post('/auth', function(req, res) {
 router.get('/load', function(req, res) { 
     var token = req.query.token; 
     var payload = jwt.verify(token, 'secretkey'); 
+    console.log(payload); 
 
     var sql = 'SELECT * FROM users WHERE uid = $1'; 
     db.query(sql, [payload.uid], function(error, result) { 
@@ -56,9 +57,12 @@ router.get('/load', function(req, res) {
                     var sql = 'select ein, name, ntmaj12, city, state, totrev2 from charities where ' + str;
                     db.query(sql, [], function(error, result) {
                         var results = (result.rows[0]) ? _.last(_.sortBy(result.rows, 'totrev2'), 10) : [];
+                        if (_.isEmpty(results)) { 
+                            blob.recommendations = []; 
+                            res.json(blob); 
+                        }
 
                         var asyncFunc = _.after(results.length, function(list) {
-                            console.log(list.length);  
                             blob.recommendations = list; 
                             res.json(blob); 
                         });  
@@ -75,9 +79,6 @@ router.get('/load', function(req, res) {
                                 return r; 
                             }); 
                         }); 
-
-                        // blob.recommendations = results; // assign the results here                         
-                        // res.json(blob); 
                     }); 
                 }); 
             }); 
