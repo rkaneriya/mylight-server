@@ -5,6 +5,10 @@ var _ = require('underscore');
 var anyDB = require('any-db');
 var db = anyDB.createConnection('postgres://localhost:5432/mylight');
 var jwt = require('jsonwebtoken'); 
+var raccoon = require('raccoon'); 
+var config = require('../config/config'); 
+
+raccoon.connect(config.REDIS_PORT, config.REDIS_URL); 
 
 router.get('/user', function(req, res) {
     var sql = 'SELECT * FROM users';
@@ -71,22 +75,31 @@ router.delete('/user', function(req, res) {
 
 /* --- USER FAVORITES --- */ 
 
-router.get('/user/:uid/favorites', function(req, res) { 
-    var uid = parseInt(req.params.uid); 
-    var sql = 'SELECT * FROM users WHERE uid = $1';
-    var q = db.query(sql, [uid], function(error, result) {
-        res.json({ favorites: result.rows[0].favorites });
-    });
-}); 
+// router.get('/user/:uid/favorites', function(req, res) { 
+//     var uid = parseInt(req.params.uid); 
+//     var sql = 'SELECT * FROM users WHERE uid = $1';
+//     var q = db.query(sql, [uid], function(error, result) {
+//         res.json({ favorites: result.rows[0].favorites });
+//     });
+// }); 
 
 router.post('/user/:uid/favorites', function(req, res) { 
-    var obj = req.body; 
+    var obj = req.body; // should have ein key representing the id of the charity to toggle favorite
     var uid = parseInt(req.params.uid); 
     var record = [uid]; 
 
-    var sql = 'UPDATE users SET favorites = array_cat(favorites, ARRAY[' + obj.favorites + ']) WHERE uid = $1';
-    db.query(sql, record, function(error, result) {
-        res.json({ uid: uid });
+    raccoon.allLikedFor(uid, function(favs) {
+        var eins = _.map(favs, function(f) { return f.ein; }); 
+
+        if (_.contains(eins, obj.ein)) { 
+            raccoon.disliked(uid, ein, function() { 
+                res.json({ uid: uid, ein: obj.ein });
+            }); 
+        } else { 
+            raccoon.liked(uid, obj.ein, function() { 
+                res.json({ uid: uid, ein: obj.ein }); 
+            }); 
+        }
     });
 }); 
 
@@ -95,14 +108,6 @@ router.delete('/user/:uid/favorites/:ein', function(req, res) {
     var ein = parseInt(req.params.ein); 
     var sql = 'UPDATE users SET favorites = array_remove(favorites, $2) WHERE uid = $1';
     db.query(sql, [uid, ein], function(error, result) {
-        res.json({ uid: uid });
-    });
-}); 
-
-router.delete('/user/:uid/favorites', function(req, res) {
-    var uid = parseInt(req.params.uid); 
-    var sql = 'UPDATE users SET favorites = null WHERE uid = $1';
-    db.query(sql, [uid], function(error, result) {
         res.json({ uid: uid });
     });
 }); 

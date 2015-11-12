@@ -18,6 +18,8 @@
     "jade": "~1.11.0",
     "jsonwebtoken": "^5.4.0",
     "morgan": "~1.6.1",
+    "raccoon": "^0.2.3",
+    "redis": "^2.3.0",
     "request": "^2.60.0",
     "serve-favicon": "~2.3.0",
     "underscore": "^1.8.3"
